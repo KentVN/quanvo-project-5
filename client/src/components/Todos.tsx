@@ -52,15 +52,28 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     prioritiesFilter: [],
   }
 
-  openNotification = () => {
-    notification.open({
-      message: 'Error',
-      description:
-        'The new Todo is already existing in the list todos. Please try again!!!',
-      onClick: () => {
-        console.log('Notification Clicked!');
-      },
-    });
+  openNotification = (option: string) => {
+    if(option === 'existing'){
+      notification.open({
+        message: 'Error',
+        description:
+          'The new Todo is already existing in the list todos. Please try again!!!',
+        onClick: () => {
+          console.log('Notification Clicked!');
+        },
+      });
+    }
+    if(option === 'success'){
+      notification.open({
+        message: 'Success',
+        description:
+          'Create new todo successfull !!!',
+        onClick: () => {
+          console.log('Notification Clicked!');
+        },
+      });
+    }
+    
   };
 
   onToDoFilter(){
@@ -100,7 +113,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       console.log(this.validateNewTodo(this.state.newTodoName))
       const isExistingTodo = this.validateNewTodo(this.state.newTodoName)
       if(isExistingTodo){
-        this.openNotification()
+        this.openNotification('existing')
         this.setState({
           loadingTodos: false
         })
@@ -116,6 +129,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
           newTodoName: '',
           loadingTodos: false
         })
+        this.openNotification('success')
       }
     } catch {
       alert('Todo creation failed')
