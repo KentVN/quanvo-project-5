@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { Form, Button } from 'semantic-ui-react'
+import { Form, Button, Image } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { getUploadUrl, uploadFile } from '../api/todos-api'
-
+import { notification } from 'antd'
 enum UploadState {
   NoUpload,
   FetchingPresignedUrl,
@@ -21,6 +21,7 @@ interface EditTodoProps {
 interface EditTodoState {
   file: any
   uploadState: UploadState
+  uploadUrl: string
 }
 
 export class EditTodo extends React.PureComponent<
@@ -29,15 +30,44 @@ export class EditTodo extends React.PureComponent<
 > {
   state: EditTodoState = {
     file: undefined,
-    uploadState: UploadState.NoUpload
+    uploadState: UploadState.NoUpload,
+    uploadUrl: ''
   }
+
+  openNotification = (option: string, e?: Error) => {
+    if(option === 'success'){
+      notification.open({
+        message: 'Successfully',
+        description:
+          'File was uploaded!',
+        onClick: () => {
+          console.log('Notification Clicked!');
+        },
+      });
+    }
+    if(option === 'failed'){
+      notification.open({
+        message: 'Error',
+        description:
+          'Could not upload a file: ' + (e as Error).message,
+        onClick: () => {
+          console.log('Notification Clicked!');
+        },
+      });
+    }
+   
+  };
 
   handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files) return
-
+    
     this.setState({
-      file: files[0]
+      file: files[0],
+    }, () => {
+      this.setState({
+        uploadUrl: URL.createObjectURL(this.state.file),
+      })
     })
   }
 
@@ -55,9 +85,9 @@ export class EditTodo extends React.PureComponent<
 
       this.setUploadState(UploadState.UploadingFile)
       await uploadFile(uploadUrl, this.state.file)
-
-      alert('File was uploaded!')
-    } catch (e) {
+      this.openNotification('success')
+    } catch (e: any) {
+      this.openNotification('failed', e)
       alert('Could not upload a file: ' + (e as Error).message)
     } finally {
       this.setUploadState(UploadState.NoUpload)
@@ -85,7 +115,7 @@ export class EditTodo extends React.PureComponent<
               onChange={this.handleFileChange}
             />
           </Form.Field>
-
+          {this.state.uploadUrl ? <Image src={this.state.uploadUrl} size="big" wrapped /> :''}
           {this.renderButton()}
         </Form>
       </div>

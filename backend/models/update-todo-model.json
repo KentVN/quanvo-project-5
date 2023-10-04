@@ -6,6 +6,9 @@
     "name": {
       "type": "string"
     },
+    "priority": {
+      "type": "string"
+    },
     "dueDate": {
       "type": "string"
     },
